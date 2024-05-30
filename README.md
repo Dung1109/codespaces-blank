@@ -38,6 +38,10 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/deploym
 ## Run Keycloak server
 docker run -p 8080:8080 -e KEYCLOAK_ADMIN=admin -e KEYCLOAK_ADMIN_PASSWORD=admin -e KC_PROXY=edge quay.io/keycloak/keycloak:24.0.4 start-dev
 
+-v ./keycloak_data:/opt/keycloak/data/h2
+
+docker run -p 8080:8080 -v ./keycloak_data:/opt/keycloak/data/h2 -e KEYCLOAK_ADMIN=admin -e KEYCLOAK_ADMIN_PASSWORD=admin -e KC_PROXY=edge quay.io/keycloak/keycloak:24.0.4 start-dev
+
 ## How to use Keycloak + API Gateway
 
 https://apisix.apache.org/blog/2022/07/06/use-keycloak-with-api-gateway-to-secure-apis/
