@@ -38,10 +38,28 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/deploym
 ## Run Keycloak server
 docker run -p 8080:8080 -e KEYCLOAK_ADMIN=admin -e KEYCLOAK_ADMIN_PASSWORD=admin -e KC_PROXY=edge quay.io/keycloak/keycloak:24.0.4 start-dev
 
--v ./keycloak_data:/opt/keycloak/data/h2
+docker run -p 8080:8080 -v keycloak:/opt/keycloak/data/h2 -e KEYCLOAK_ADMIN=admin -e KEYCLOAK_ADMIN_PASSWORD=admin -e KC_PROXY=edge quay.io/keycloak/keycloak:24.0.4 start-dev
 
-docker run -p 8080:8080 -v ./keycloak_data:/opt/keycloak/data/h2 -e KEYCLOAK_ADMIN=admin -e KEYCLOAK_ADMIN_PASSWORD=admin -e KC_PROXY=edge quay.io/keycloak/keycloak:24.0.4 start-dev
 
 ## How to use Keycloak + API Gateway
 
 https://apisix.apache.org/blog/2022/07/06/use-keycloak-with-api-gateway-to-secure-apis/
+
+
+## How to implement docker in Keycloak
+
+Create a docker volume for the H2 database files
+docker volume create keycloak
+Set the correct permissions on the new volume (the keycloak user in the quay.io/keycloak/keycloak:18.0.2 image container is UID: 1000, GID: 0)
+docker run \
+    --rm \
+    --entrypoint chown \
+    -v keycloak:/keycloak \
+    alpine -R 1000:0 /keycloak
+Use the docker volume to persist the H2 database
+docker run \
+    -p 8080:8080 \
+    -e KEYCLOAK_ADMIN=admin \
+    -e KEYCLOAK_ADMIN_PASSWORD=admin \
+    -v keycloak:/opt/keycloak/data/h2 \
+    quay.io/keycloak/keycloak:18.0.2 start-dev --http-relative-path /auth
